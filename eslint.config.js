@@ -34,6 +34,8 @@ export default [
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       // TypeScript already checks this; ESLint's no-undef does not understand TS types (e.g. RequestInit).
       'no-undef': 'off',
+      // Use the TS-aware rule instead (handles parameter properties, types, etc.).
+      'no-unused-vars': 'off',
       ...reactHooksPlugin.configs.recommended.rules,
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       // Monorepo boundary enforcement (lightweight, eslint-core only):

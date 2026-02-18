@@ -1,8 +1,10 @@
 import type {
   CreateVerificationSessionRequest,
   CreateVerificationSessionResponse,
+  CreateEventTokenResponse,
   RedeemResultTokenRequest,
   RedeemResultTokenResponse,
+  SetVerificationSessionStatusRequest,
   VerificationSession,
 } from '@idbridge/shared';
 
@@ -38,6 +40,26 @@ export class IdbridgeClient {
     return this.request(`/v1/verification-sessions/${encodeURIComponent(id)}`, { method: 'GET' });
   }
 
+  async createVerificationSessionEventToken(id: string): Promise<CreateEventTokenResponse> {
+    return this.request(`/v1/verification-sessions/${encodeURIComponent(id)}/event-tokens`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+  }
+
+  /**
+   * Internal/service usage: transition session status (requires service key).
+   */
+  async setVerificationSessionStatus(
+    id: string,
+    body: SetVerificationSessionStatusRequest,
+  ): Promise<VerificationSession> {
+    return this.request(`/v1/verification-sessions/${encodeURIComponent(id)}/status`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+
   /**
    * SSE helper. Consumers are responsible for closing the EventSource.
    * Browser-only. In Node, use a different SSE client.
@@ -46,6 +68,13 @@ export class IdbridgeClient {
     const url = `${this.baseUrl}/v1/verification-sessions/${encodeURIComponent(id)}/events`;
     // Note: EventSource cannot set Authorization headers in browsers.
     // If auth is needed, prefer cookie-based auth for verify UI or use a short-lived event token in the URL.
+    return new EventSource(url);
+  }
+
+  createVerificationSessionEventSourceWithToken(id: string, eventToken: string): EventSource {
+    const url = `${this.baseUrl}/v1/verification-sessions/${encodeURIComponent(id)}/events?token=${encodeURIComponent(
+      eventToken,
+    )}`;
     return new EventSource(url);
   }
 

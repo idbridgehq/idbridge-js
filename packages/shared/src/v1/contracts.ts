@@ -6,6 +6,7 @@ export type VerificationSession = {
   expiresAt: string; // ISO
   qrPayload?: string;
   deepLink?: string;
+  resultToken?: string;
 };
 
 export type CreateVerificationSessionRequest = {
@@ -27,6 +28,17 @@ export type NormalizedResult = {
 export type RedeemResultTokenResponse = {
   sessionId: string;
   result: NormalizedResult;
+};
+
+export type CreateEventTokenResponse = {
+  token: string;
+  expiresAt: string;
+  sseUrl: string; // relative URL
+};
+
+export type SetVerificationSessionStatusRequest = {
+  status: VerificationSessionStatus;
+  result?: NormalizedResult;
 };
 
 export type SseEvent =
