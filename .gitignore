@@ -5,6 +5,7 @@ dist
 coverage
 .env
 .env.*
+!.env.example
 oss-sdk-mirror-key
 oss-sdk-mirror-key.pub
 
