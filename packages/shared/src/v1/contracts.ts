@@ -7,6 +7,9 @@ export type VerificationSession = {
   qrPayload?: string;
   deepLink?: string;
   resultToken?: string;
+  /** Nonce for the OpenID4VP authorization request. Used by the gateway to validate the wallet response. */
+  nonce?: string;
+  credentialType?: string;
 };
 
 export type CreateVerificationSessionRequest = {
