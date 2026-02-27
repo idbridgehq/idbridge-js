@@ -2,29 +2,28 @@ import type {
   CreateVerificationSessionRequest,
   CreateVerificationSessionResponse,
   CreateEventTokenResponse,
-  RedeemResultTokenRequest,
-  RedeemResultTokenResponse,
-  SetVerificationSessionStatusRequest,
   VerificationSession,
 } from '@idbridge/shared';
 
 export type IdbridgeClientOptions = {
   baseUrl: string; // e.g. https://api.idbridge.example
-  publishableKey?: string; // browser/verify UI
-  secretKey?: string; // server-side redemption and privileged calls
+  publishableKey: string; // publishable key only — never a secret key
   fetchImpl?: typeof fetch;
 };
 
+/**
+ * Frontend/browser SDK. Publishable key only.
+ * For server-side operations including result token redemption, use @idbridge/server.
+ */
 export class IdbridgeClient {
   private readonly baseUrl: string;
   private readonly fetchImpl: typeof fetch;
-  private readonly authHeader?: string;
+  private readonly authHeader: string;
 
   constructor(opts: IdbridgeClientOptions) {
     this.baseUrl = opts.baseUrl.replace(/\/+$/, '');
     this.fetchImpl = opts.fetchImpl ?? fetch;
-    const key = opts.secretKey ?? opts.publishableKey;
-    this.authHeader = key ? `Bearer ${key}` : undefined;
+    this.authHeader = `Bearer ${opts.publishableKey}`;
   }
 
   async createVerificationSession(
@@ -48,19 +47,6 @@ export class IdbridgeClient {
   }
 
   /**
-   * Internal/service usage: transition session status (requires service key).
-   */
-  async setVerificationSessionStatus(
-    id: string,
-    body: SetVerificationSessionStatusRequest,
-  ): Promise<VerificationSession> {
-    return this.request(`/v1/verification-sessions/${encodeURIComponent(id)}/status`, {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
-  }
-
-  /**
    * SSE helper. Consumers are responsible for closing the EventSource.
    * Browser-only. In Node, use a different SSE client.
    */
@@ -78,15 +64,8 @@ export class IdbridgeClient {
     return new EventSource(url);
   }
 
-  async redeemResultToken(body: RedeemResultTokenRequest): Promise<RedeemResultTokenResponse> {
-    return this.request('/v1/result-tokens/redeem', {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
-  }
-
   private async request<T>(path: string, init: RequestInit): Promise<T> {
-    // Boundary rule: keep the public SDK a “thin wrapper”.
+    // Boundary rule: keep the public SDK a "thin wrapper".
     // - no protocol logic
     // - no crypto
     // - no policy
@@ -94,7 +73,7 @@ export class IdbridgeClient {
       ...init,
       headers: {
         'content-type': 'application/json',
-        ...(this.authHeader ? { authorization: this.authHeader } : {}),
+        authorization: this.authHeader,
         ...(init.headers ?? {}),
       },
     });
@@ -106,5 +85,3 @@ export class IdbridgeClient {
     return (await res.json()) as T;
   }
 }
-
-
