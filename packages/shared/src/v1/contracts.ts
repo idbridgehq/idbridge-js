@@ -46,7 +46,7 @@ export type SetVerificationSessionStatusRequest = {
 
 export type SseEvent =
   | { type: 'status_changed'; sessionId: string; status: VerificationSessionStatus }
-  | { type: 'verified'; sessionId: string }
+  | { type: 'verified'; sessionId: string; resultToken: string }
   | { type: 'failed'; sessionId: string; code: string }
   | { type: 'expired'; sessionId: string };
 
