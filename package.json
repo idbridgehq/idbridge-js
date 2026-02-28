@@ -6,6 +6,7 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "dev:local": "docker compose up -d && pnpm -w dev",
     "lint": "turbo lint",
     "test": "turbo test",
     "typecheck": "turbo typecheck",
